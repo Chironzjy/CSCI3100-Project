@@ -42,6 +42,7 @@ gem "image_processing", "~> 1.2"
 
 
 gem 'dotenv-rails', groups: [:development, :test]
+gem 'rails_12factor', group: :production
 
 
 group :development, :test do
