@@ -1,0 +1,60 @@
+<% if @item.errors.any? %>
+  <div class="alert alert-danger">
+    <h6 class="fw-semibold mb-2">
+      <%= pluralize(@item.errors.count, "error") %> prevented this listing from being saved:
+    </h6>
+    <ul class="mb-0 ps-3">
+      <% @item.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with model: @item do |f| %>
+  <div class="mb-3">
+    <%= f.label :title, class: "form-label fw-semibold" %>
+    <%= f.text_field :title, class: "form-control #{'is-invalid' if @item.errors[:title].any?}",
+        placeholder: "e.g. Barely used MacBook Pro 2023", maxlength: 100 %>
+    <div class="form-text text-muted">Max 100 characters</div>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :description, class: "form-label fw-semibold" %>
+    <%= f.text_area :description, class: "form-control #{'is-invalid' if @item.errors[:description].any?}",
+        rows: 5, placeholder: "Describe condition, age, included accessories, reason for selling..." %>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <%= f.label :price, "Price (HKD)", class: "form-label fw-semibold" %>
+      <div class="input-group">
+        <span class="input-group-text">HK$</span>
+        <%= f.number_field :price, class: "form-control #{'is-invalid' if @item.errors[:price].any?}",
+            min: 0, step: 1, placeholder: "0" %>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <%= f.label :category, class: "form-label fw-semibold" %>
+      <%= f.select :category,
+          options_for_select([['Select a category', '']] + Item::CATEGORIES.map { |c| [c, c] }, @item.category),
+          {}, class: "form-select #{'is-invalid' if @item.errors[:category].any?}" %>
+    </div>
+
+    <div class="col-md-4">
+      <%= f.label :college, "Preferred Meetup Location", class: "form-label fw-semibold" %>
+      <%= f.select :college,
+          options_for_select(Item::COLLEGES.map { |c| [c, c] }, @item.college.presence || 'Any College'),
+          {}, class: "form-select" %>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2 pt-2">
+    <%= f.submit @item.new_record? ? "Post Listing" : "Update Listing",
+        class: "btn btn-primary px-4" %>
+    <%= link_to "Cancel",
+        @item.new_record? ? items_path : item_path(@item),
+        class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>

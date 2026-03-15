@@ -1,0 +1,102 @@
+<% content_for :title, "#{@item.title} – CUHK Mart" %>
+
+<div class="container py-4">
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><%= link_to "Browse", items_path %></li>
+      <li class="breadcrumb-item active"><%= truncate(@item.title, length: 45) %></li>
+    </ol>
+  </nav>
+
+  <div class="row g-4">
+    <!-- Item Details -->
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <span class="badge bg-secondary mb-2"><%= @item.category %></span>
+            <span class="badge bg-<%= @item.status_color %> fs-6 px-3"><%= @item.status.capitalize %></span>
+          </div>
+
+          <h2 class="h4 mb-1"><%= @item.title %></h2>
+          <h3 class="text-success mb-3 fw-bold">HK$<%= number_with_delimiter(@item.price.to_i) %></h3>
+
+          <hr class="my-3">
+
+          <h6 class="fw-semibold mb-2">Description</h6>
+          <div class="text-muted mb-3"><%= simple_format(@item.description) %></div>
+
+          <% if @item.college.present? %>
+            <p class="mb-1 small">
+              <i class="bi bi-building me-2 text-primary"></i>
+              <strong>Preferred meetup:</strong> <%= @item.college %>
+            </p>
+          <% end %>
+          <p class="mb-0 small text-muted">
+            <i class="bi bi-calendar me-2"></i>Listed on <%= @item.created_at.strftime("%b %d, %Y") %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar: Seller & Actions -->
+    <div class="col-md-4">
+      <!-- Seller card -->
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body">
+          <h6 class="fw-semibold mb-3"><i class="bi bi-person-circle me-2 text-primary"></i>Seller Info</h6>
+          <p class="fw-bold mb-1"><%= @item.user.user_name %></p>
+          <p class="text-muted small mb-0">
+            <i class="bi bi-geo-alt me-1"></i><%= @item.user.location %>
+          </p>
+        </div>
+      </div>
+
+      <!-- Owner management card -->
+      <% if @item.user == current_user %>
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h6 class="fw-semibold mb-3"><i class="bi bi-sliders me-2 text-primary"></i>Manage Listing</h6>
+            <div class="d-grid gap-2">
+              <%= link_to edit_item_path(@item), class: "btn btn-outline-primary btn-sm" do %>
+                <i class="bi bi-pencil me-1"></i>Edit Details
+              <% end %>
+
+              <% if @item.status == 'available' %>
+                <%= button_to update_status_item_path(@item, status: 'reserved'),
+                      method: :patch, class: "btn btn-outline-warning btn-sm" do %>
+                  <i class="bi bi-bookmark me-1"></i>Mark as Reserved
+                <% end %>
+                <%= button_to update_status_item_path(@item, status: 'inactive'),
+                      method: :patch, class: "btn btn-outline-secondary btn-sm" do %>
+                  <i class="bi bi-pause-circle me-1"></i>Set Inactive
+                <% end %>
+              <% elsif @item.status == 'reserved' %>
+                <%= button_to update_status_item_path(@item, status: 'sold'),
+                      method: :patch, class: "btn btn-outline-danger btn-sm" do %>
+                  <i class="bi bi-check-circle me-1"></i>Mark as Sold
+                <% end %>
+                <%= button_to update_status_item_path(@item, status: 'available'),
+                      method: :patch, class: "btn btn-outline-success btn-sm" do %>
+                  <i class="bi bi-arrow-counterclockwise me-1"></i>Back to Available
+                <% end %>
+              <% elsif @item.status == 'inactive' %>
+                <%= button_to update_status_item_path(@item, status: 'available'),
+                      method: :patch, class: "btn btn-outline-success btn-sm" do %>
+                  <i class="bi bi-arrow-up-circle me-1"></i>Relist Item
+                <% end %>
+              <% end %>
+
+              <hr class="my-1">
+              <%= button_to item_path(@item), method: :delete,
+                    data: { turbo_confirm: "Delete '#{@item.title}'? This cannot be undone." },
+                    class: "btn btn-danger btn-sm" do %>
+                <i class="bi bi-trash me-1"></i>Delete Listing
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,3 +1,72 @@
-<% if user_signed_in? %>
-  <p>Welcome, <%= current_user.user_name %>!</p>
-<% end %>
+<% content_for :title, "CUHK Mart – Campus Second-hand Marketplace" %>
+
+<!-- Hero -->
+<div class="bg-primary text-white py-5">
+  <div class="container text-center">
+    <i class="bi bi-shop-window" style="font-size: 3rem;"></i>
+    <h1 class="display-5 fw-bold mt-2 mb-2">CUHK Mart</h1>
+    <p class="lead mb-4 opacity-75">Buy and sell second-hand items within the CUHK community.</p>
+    <%= form_with url: items_path, method: :get,
+          class: "d-flex justify-content-center gap-2 flex-wrap" do |f| %>
+      <div class="input-group" style="max-width: 420px;">
+        <%= f.text_field :search, placeholder: "Search for items...",
+            class: "form-control form-control-lg" %>
+        <%= f.submit "Search", class: "btn btn-light btn-lg px-4" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Category shortcut pills -->
+<div class="bg-white border-bottom py-3">
+  <div class="container">
+    <div class="d-flex gap-2 flex-wrap justify-content-center">
+      <% Item::CATEGORIES.each do |cat| %>
+        <%= link_to cat, items_path(category: cat), class: "btn btn-outline-secondary btn-sm" %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Listings -->
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 mb-0">Recent Listings</h2>
+    <%= link_to "View All →", items_path, class: "text-decoration-none" %>
+  </div>
+
+  <% recent_items = Item.includes(:user).available.recent.limit(8) %>
+
+  <% if recent_items.empty? %>
+    <div class="text-center py-4">
+      <p class="text-muted">No items listed yet.</p>
+      <%= link_to "Be the first to post!", new_item_path, class: "btn btn-primary" %>
+    </div>
+  <% else %>
+    <div class="row g-3">
+      <% recent_items.each do |item| %>
+        <div class="col-sm-6 col-md-4 col-lg-3">
+          <%= link_to item_path(item), class: "text-decoration-none text-dark" do %>
+            <div class="card h-100 shadow-sm border-0 item-card">
+              <div class="card-body pb-2">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <span class="badge bg-secondary small"><%= item.category %></span>
+                  <span class="fw-bold text-success">HK$<%= number_with_delimiter(item.price.to_i) %></span>
+                </div>
+                <h6 class="card-title mb-1"><%= truncate(item.title, length: 55) %></h6>
+                <p class="card-text text-muted small"><%= truncate(item.description, length: 70) %></p>
+              </div>
+              <div class="card-footer bg-transparent border-top-0 pt-0 pb-2">
+                <small class="text-muted">
+                  <i class="bi bi-person me-1"></i><%= item.user.user_name %>
+                  &middot; <i class="bi bi-clock me-1"></i><%= time_ago_in_words(item.created_at) %> ago
+                </small>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+

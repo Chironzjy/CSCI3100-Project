@@ -4,9 +4,11 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  validates :user_name, presence: true
-  validates :location, presence: true
-  validates :latitude, presence: true
+  has_many :items, dependent: :destroy
+
+  validates :user_name, presence: true, uniqueness: { case_sensitive: false }
+  validates :location,  presence: true
+  validates :latitude,  presence: true
   validates :longitude, presence: true
 
   geocoded_by :location
