@@ -1,0 +1,60 @@
+<h2>Sign up</h2>
+
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+  <%= render "devise/shared/error_messages", resource: resource %>
+
+  <div class="field">
+    <%= f.label :user_name %><br />
+    <%= f.text_field :user_name, autofocus: true, required: true %>
+  </div>
+
+  <div class="field">
+    <%= f.label :location %><br />
+    <%= f.text_field :location, id: "user_location", autocomplete: "off", required: true %>
+  </div>
+
+  <%= f.hidden_field :latitude, id: "user_latitude" %>
+  <%= f.hidden_field :longitude, id: "user_longitude" %>
+
+  <div class="field">
+    <p><%= f.label :email %></p>
+    <p><%= f.email_field :email, autocomplete: "email" %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :password %></p>
+    <% if @minimum_password_length %>
+      <p><em>(<%= @minimum_password_length %> characters minimum)</em></p>
+    <% end %>
+    <p><%= f.password_field :password, autocomplete: "new-password" %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :password_confirmation %></p>
+    <p><%= f.password_field :password_confirmation, autocomplete: "new-password" %></p>
+  </div>
+
+  <div class="actions">
+    <%= f.submit "Sign up" %>
+  </div>
+<% end %>
+
+<%= render "devise/shared/links" %>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&libraries=places&callback=initAutocomplete" async defer></script>
+<script>
+function initAutocomplete(){
+    var input = document.getElementById("user_location");
+    if(input){
+        var autocomplete = new google.maps.places.Autocomplete(input, {
+            types: ['geocode'],
+            componentRestrictions: {country: "hk"}
+        });
+        autocomplete.addListener('place_changed', function(){
+            var place = autocomplete.getPlace();
+            document.getElementById("user_latitude").value = place.geometry.location.lat();
+            document.getElementById("user_longitude").value = place.geometry.location.lng();
+        });
+    }
+}
+</script>

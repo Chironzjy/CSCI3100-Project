@@ -24,6 +24,9 @@ default: &default
 
 development:
   <<: *default
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
+  host: localhost
   database: csci3100_project_development
 
   # The specified database role being used to connect to PostgreSQL.
