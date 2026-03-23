@@ -1,7 +1,10 @@
 class Item < ApplicationRecord
+  include PgSearch::Model
+
   belongs_to :user
 
   STATUSES   = %w[available reserved inactive sold].freeze
+  VISIBILITY_SCOPES = %w[campus college_only].freeze
   CATEGORIES = %w[Electronics Furniture Clothing Books Sports Others].freeze
   COLLEGES   = [
     'Any College', 'Shaw College', 'Morningside College', 'United College',
@@ -14,9 +17,34 @@ class Item < ApplicationRecord
   validates :price,       presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :status,      inclusion: { in: STATUSES }
   validates :category,    presence: true, inclusion: { in: CATEGORIES }
+  validates :visibility_scope, inclusion: { in: VISIBILITY_SCOPES }
+  validates :visibility_college, presence: true, if: :college_only_visibility?
 
   scope :available, -> { where(status: 'available') }
   scope :recent,    -> { order(created_at: :desc) }
+
+  pg_search_scope :smart_search,
+                  against: [:title, :description],
+                  using: {
+                    tsearch: { prefix: true },
+                    trigram: {}
+                  },
+                  ignoring: :accents
+
+  scope :visible_to, lambda { |user|
+    if user&.college.present?
+      where(
+        "visibility_scope = :campus OR (visibility_scope = :college_only AND visibility_college = :college)",
+        campus: "campus", college_only: "college_only", college: user.college
+      )
+    else
+      where(visibility_scope: "campus")
+    end
+  }
+
+  def college_only_visibility?
+    visibility_scope == "college_only"
+  end
 
   def status_color
     { 'available' => 'success', 'reserved' => 'warning',

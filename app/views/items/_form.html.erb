@@ -50,6 +50,22 @@
     </div>
   </div>
 
+  <div class="row g-3 mb-3">
+    <div class="col-md-6">
+      <%= f.label :visibility_scope, "Visibility", class: "form-label fw-semibold" %>
+      <%= f.select :visibility_scope,
+          options_for_select([["Campus-wide", "campus"], ["My college only", "college_only"]], @item.visibility_scope.presence || "campus"),
+          {}, class: "form-select" %>
+    </div>
+    <div class="col-md-6">
+      <%= f.label :visibility_college, "Visible College (if restricted)", class: "form-label fw-semibold" %>
+      <%= f.select :visibility_college,
+          options_for_select([["Use my college", current_user.college]] + User::COLLEGES.map { |c| [c, c] }, @item.visibility_college.presence || current_user.college),
+          {}, class: "form-select" %>
+      <div class="form-text text-muted">Choose campus-wide or limit visibility to one college.</div>
+    </div>
+  </div>
+
   <div class="d-flex gap-2 pt-2">
     <%= f.submit @item.new_record? ? "Post Listing" : "Update Listing",
         class: "btn btn-primary px-4" %>

@@ -4,6 +4,22 @@
   <%= render "devise/shared/error_messages", resource: resource %>
 
   <div class="field">
+    <p><%= f.label :user_name %></p>
+    <p><%= f.text_field :user_name, autocomplete: "nickname" %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :location %></p>
+    <p><%= f.text_field :location, autocomplete: "off" %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :college %></p>
+    <p><%= f.select :college,
+          options_for_select([["Select your college", ""]] + User::COLLEGES.map { |c| [c, c] }, resource.college) %></p>
+  </div>
+
+  <div class="field">
     <p><%= f.label :email %></p>
     <p><%= f.email_field :email, autofocus: true, autocomplete: "email" %></p>
   </div>

@@ -13,6 +13,14 @@
     <%= f.text_field :location, id: "user_location", autocomplete: "off", required: true %>
   </div>
 
+  <div class="field">
+    <%= f.label :college %><br />
+    <%= f.select :college,
+        options_for_select([["Select your college", ""]] + User::COLLEGES.map { |c| [c, c] }, resource.college),
+        {},
+        required: true %>
+  </div>
+
   <%= f.hidden_field :latitude, id: "user_latitude" %>
   <%= f.hidden_field :longitude, id: "user_longitude" %>
 

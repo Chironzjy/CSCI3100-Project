@@ -1,14 +1,14 @@
 class ItemsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_item, only: [:show, :edit, :update, :destroy, :update_status]
+  before_action :authorize_visibility!, only: [:show]
   before_action :authorize_owner!, only: [:edit, :update, :destroy, :update_status]
 
   def index
-    @items = Item.includes(:user).available.recent
+    @items = Item.includes(:user).available.visible_to(current_user).recent
 
     if params[:search].present?
-      term = "%#{ActiveRecord::Base.sanitize_sql_like(params[:search])}%"
-      @items = @items.where("title ILIKE ? OR description ILIKE ?", term, term)
+      @items = @items.smart_search(params[:search])
     end
 
     @items = @items.where(category: params[:category]) if params[:category].present?
@@ -71,7 +71,19 @@ class ItemsController < ApplicationController
     redirect_to items_path, alert: 'Not authorized.' unless @item.user == current_user
   end
 
+  def authorize_visibility!
+    return if @item.user == current_user
+    return if @item.visibility_scope == "campus"
+    return if @item.visibility_college.present? && @item.visibility_college == current_user.college
+
+    redirect_to items_path, alert: "This listing is visible only to #{ @item.visibility_college || 'its college' }."
+  end
+
   def item_params
-    params.require(:item).permit(:title, :description, :price, :category, :college)
+    permitted = params.require(:item).permit(:title, :description, :price, :category, :college, :visibility_scope, :visibility_college)
+    if permitted[:visibility_scope] == "college_only" && permitted[:visibility_college].blank?
+      permitted[:visibility_college] = current_user.college
+    end
+    permitted
   end
 end

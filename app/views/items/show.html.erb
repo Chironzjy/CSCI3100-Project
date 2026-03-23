@@ -17,6 +17,15 @@
             <span class="badge bg-secondary mb-2"><%= @item.category %></span>
             <span class="badge bg-<%= @item.status_color %> fs-6 px-3"><%= @item.status.capitalize %></span>
           </div>
+          <p class="small mb-2 text-muted">
+            <i class="bi bi-eye me-1"></i>
+            Visibility:
+            <% if @item.visibility_scope == "college_only" %>
+              College only (<%= @item.visibility_college %>)
+            <% else %>
+              Campus-wide
+            <% end %>
+          </p>
 
           <h2 class="h4 mb-1"><%= @item.title %></h2>
           <h3 class="text-success mb-3 fw-bold">HK$<%= number_with_delimiter(@item.price.to_i) %></h3>
@@ -94,6 +103,15 @@
                 <i class="bi bi-trash me-1"></i>Delete Listing
               <% end %>
             </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h6 class="fw-semibold mb-3"><i class="bi bi-chat-left-text me-2 text-primary"></i>Interested?</h6>
+            <%= button_to conversations_path(item_id: @item.id), method: :post, class: "btn btn-primary w-100" do %>
+              <i class="bi bi-send me-1"></i>Contact Seller
+            <% end %>
           </div>
         </div>
       <% end %>

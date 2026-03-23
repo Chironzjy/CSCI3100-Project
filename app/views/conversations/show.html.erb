@@ -1,0 +1,38 @@
+<% content_for :title, "Chat with #{@counterpart.user_name} - CUHK Mart" %>
+
+<div class="container py-4">
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <div>
+        <h5 class="mb-0">Chat with <%= @counterpart.user_name %></h5>
+        <small class="text-muted">Item: <%= link_to @conversation.item.title, item_path(@conversation.item), class: "text-decoration-none" %></small>
+      </div>
+      <%= link_to conversations_path, class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-arrow-left me-1"></i>Back
+      <% end %>
+    </div>
+
+        <div id="messages"
+          class="card-body chat-box"
+          data-conversation-id="<%= @conversation.id %>"
+         data-current-user-id="<%= current_user.id %>">
+      <% @messages.each do |message| %>
+        <% mine = message.user_id == current_user.id %>
+        <div class="d-flex mb-2 <%= mine ? 'justify-content-end' : 'justify-content-start' %>">
+          <div class="chat-bubble <%= mine ? 'chat-bubble-me' : 'chat-bubble-other' %>">
+            <div class="small fw-semibold mb-1"><%= message.user.user_name %></div>
+            <div><%= simple_format(message.body) %></div>
+            <div class="chat-time"><%= message.created_at.strftime('%H:%M') %></div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="card-footer bg-white">
+      <%= form_with model: [@conversation, Message.new], class: "d-flex gap-2" do |f| %>
+        <%= f.text_area :body, class: "form-control", rows: 2, placeholder: "Type a message...", required: true %>
+        <%= f.submit "Send", class: "btn btn-primary" %>
+      <% end %>
+    </div>
+  </div>
+</div>
