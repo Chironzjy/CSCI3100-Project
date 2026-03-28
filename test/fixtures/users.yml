@@ -4,7 +4,12 @@
 # model remove the "{}" from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
+one: # I actually don't know whether the format is correct or not. I'll fix it later.
+  user_name: "one"
+  location: "Saitama"
+  latitude: 1
+  longitude: 1
+  college: "Shaw College"
 # column: value
 #
 two: {}
