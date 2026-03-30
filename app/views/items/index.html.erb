@@ -65,8 +65,8 @@
               <div class="card-footer bg-transparent border-top-0 pt-0 pb-2">
                 <small class="text-muted">
                   <i class="bi bi-person me-1"></i><%= item.user.user_name %>
-                  <% if item.college.present? && item.college != 'Any College' %>
-                    &middot; <i class="bi bi-geo-alt me-1"></i><%= item.college.sub(' College', '') %>
+                  <% if item.location.present? %>
+                    &middot; <i class="bi bi-geo-alt me-1"></i><%= item.location %>
                   <% end %>
                 </small><br>
                 <small class="text-muted"><i class="bi bi-clock me-1"></i><%= time_ago_in_words(item.created_at) %> ago</small>

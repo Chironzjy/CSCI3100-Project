@@ -80,7 +80,18 @@ class ItemsController < ApplicationController
   end
 
   def item_params
-    permitted = params.require(:item).permit(:title, :description, :price, :category, :college, :visibility_scope, :visibility_college)
+    permitted = params.require(:item).permit(
+      :title,
+      :description,
+      :price,
+      :category,
+      :college,
+      :location,
+      :latitude,
+      :longitude,
+      :visibility_scope,
+      :visibility_college
+    )
     if permitted[:visibility_scope] == "college_only" && permitted[:visibility_college].blank?
       permitted[:visibility_college] = current_user.college
     end

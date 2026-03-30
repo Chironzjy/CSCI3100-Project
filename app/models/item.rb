@@ -17,14 +17,17 @@ class Item < ApplicationRecord
   validates :price,       presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :status,      inclusion: { in: STATUSES }
   validates :category,    presence: true, inclusion: { in: CATEGORIES }
+  validates :latitude,    numericality: true, allow_nil: true
+  validates :longitude,   numericality: true, allow_nil: true
   validates :visibility_scope, inclusion: { in: VISIBILITY_SCOPES }
   validates :visibility_college, presence: true, if: :college_only_visibility?
+  validate :meetup_location_selected
 
   scope :available, -> { where(status: 'available') }
   scope :recent,    -> { order(created_at: :desc) }
 
   pg_search_scope :smart_search,
-                  against: [:title, :description],
+                  against: [:title, :description, :location],
                   using: {
                     tsearch: { prefix: true },
                     trigram: {}
@@ -44,6 +47,14 @@ class Item < ApplicationRecord
 
   def college_only_visibility?
     visibility_scope == "college_only"
+  end
+
+  def meetup_location_selected
+    if location.blank?
+      errors.add(:location, "can't be blank")
+    elsif latitude.blank? || longitude.blank?
+      errors.add(:location, "must be selected from Google Maps suggestions")
+    end
   end
 
   def status_color

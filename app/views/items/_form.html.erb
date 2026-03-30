@@ -11,7 +11,95 @@
   </div>
 <% end %>
 
+<% content_for :head do %>
+  <script>
+    function initItemMeetupAutocomplete() {
+      var input = document.getElementById("item_meetup_location");
+      var latitudeInput = document.getElementById("item_latitude");
+      var longitudeInput = document.getElementById("item_longitude");
+      var form = input ? input.form : null;
+
+      if (!input || input.dataset.autocompleteReady === "true" || !window.google || !google.maps || !google.maps.places) {
+        return;
+      }
+
+      function clearSelectedLocation() {
+        input.dataset.locationSelected = "false";
+
+        if (latitudeInput) {
+          latitudeInput.value = "";
+        }
+
+        if (longitudeInput) {
+          longitudeInput.value = "";
+        }
+      }
+
+      var autocomplete = new google.maps.places.Autocomplete(input, {
+        types: ["geocode"],
+        componentRestrictions: { country: "hk" }
+      });
+
+      input.dataset.autocompleteReady = "true";
+      input.dataset.locationSelected = latitudeInput && latitudeInput.value && longitudeInput && longitudeInput.value ? "true" : "false";
+
+      input.addEventListener("input", function() {
+        clearSelectedLocation();
+      });
+
+      autocomplete.addListener("place_changed", function() {
+        var place = autocomplete.getPlace();
+        if (place && place.geometry && place.geometry.location) {
+          if (place.formatted_address) {
+            input.value = place.formatted_address;
+          }
+
+          if (latitudeInput) {
+            latitudeInput.value = place.geometry.location.lat();
+          }
+
+          if (longitudeInput) {
+            longitudeInput.value = place.geometry.location.lng();
+          }
+
+          input.dataset.locationSelected = "true";
+        } else {
+          clearSelectedLocation();
+        }
+      });
+
+      if (form && form.dataset.meetupValidationReady !== "true") {
+        form.dataset.meetupValidationReady = "true";
+
+        form.addEventListener("submit", function(event) {
+          if (!input.value.trim()) {
+            event.preventDefault();
+            alert("Please enter a preferred meetup location.");
+            input.focus();
+            return;
+          }
+
+          if (input.dataset.locationSelected !== "true" || !latitudeInput.value || !longitudeInput.value) {
+            event.preventDefault();
+            alert("Please select a preferred meetup location from the Google Maps suggestions.");
+            input.focus();
+          }
+        });
+      }
+    }
+
+    if (!window.itemMeetupAutocompleteTurboHandlerAttached) {
+      document.addEventListener("turbo:load", initItemMeetupAutocomplete);
+      window.itemMeetupAutocompleteTurboHandlerAttached = true;
+    }
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&libraries=places&callback=initItemMeetupAutocomplete" async defer></script>
+<% end %>
+
 <%= form_with model: @item do |f| %>
+  <%= f.hidden_field :latitude, id: "item_latitude" %>
+  <%= f.hidden_field :longitude, id: "item_longitude" %>
+
   <div class="mb-3">
     <%= f.label :title, class: "form-label fw-semibold" %>
     <%= f.text_field :title, class: "form-control #{'is-invalid' if @item.errors[:title].any?}",
@@ -43,10 +131,16 @@
     </div>
 
     <div class="col-md-4">
-      <%= f.label :college, "Preferred Meetup Location", class: "form-label fw-semibold" %>
-      <%= f.select :college,
-          options_for_select(Item::COLLEGES.map { |c| [c, c] }, @item.college.presence || 'Any College'),
-          {}, class: "form-select" %>
+      <%= f.label :location, "Preferred Meetup Location", class: "form-label fw-semibold" %>
+      <%= f.text_field :location,
+          id: "item_meetup_location",
+          class: "form-control #{'is-invalid' if @item.errors[:location].any?}",
+          autocomplete: "off",
+          required: true,
+          placeholder: "Search a meetup location and select it" %>
+      <% @item.errors[:location].each do |message| %>
+        <div class="invalid-feedback d-block"><%= message %></div>
+      <% end %>
     </div>
   </div>
 
