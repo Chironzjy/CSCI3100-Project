@@ -1,6 +1,8 @@
 require "test_helper"
 
 class ItemsControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
   setup do
     @user = users(:one)
     sign_in @user
@@ -11,7 +13,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
     get items_url
     assert_response :success
-    assert_not_nil assigns(:items)
+    assert_match @item.title, response.body
   end
 
   test "should get new" do
@@ -21,16 +23,27 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   test "should create item" do
     assert_difference("Item.count", 1) do
-      post items_url, params: { item: { name: "New Item", description: "New Desc", status: "draft" } }
+      post items_url, params: {
+        item: {
+          title: "New Item",
+          description: "New Desc",
+          price: 50,
+          category: "Books",
+          location: "MTR University",
+          latitude: 22.4138,
+          longitude: 114.2102,
+          visibility_scope: "campus"
+        }
+      }
     end
     assert_redirected_to item_url(Item.last)
     follow_redirect!
-    assert_match "Item was successfully created.", response.body
+    assert_match "Item listed successfully!", response.body
   end
 
   test "should not create item with invalid params" do
     assert_no_difference("Item.count") do
-      post items_url, params: { item: { name: nil } }
+      post items_url, params: { item: { title: nil } }
     end
     assert_response :unprocessable_entity
   end
@@ -38,7 +51,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   test "should show item" do
     get item_url(@item)
     assert_response :success
-    assert_equal @item, assigns(:item)
+    assert_match @item.title, response.body
   end
 
   test "should get edit" do
@@ -47,19 +60,19 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update item" do
-    patch item_url(@item), params: { item: { name: "Updated Name" } }
+    patch item_url(@item), params: { item: { title: "Updated Name" } }
     assert_redirected_to item_url(@item)
     @item.reload
-    assert_equal "Updated Name", @item.name
+    assert_equal "Updated Name", @item.title
     follow_redirect!
-    assert_match "Item was successfully updated.", response.body
+    assert_match "Item updated successfully!", response.body
   end
 
   test "should not update item with invalid params" do
-    patch item_url(@item), params: { item: { name: nil } }
+    patch item_url(@item), params: { item: { title: nil } }
     assert_response :unprocessable_entity
     @item.reload
-    assert_not_equal nil, @item.name
+    assert_not_nil @item.title
   end
 
   test "should destroy item" do
@@ -68,7 +81,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to items_url
     follow_redirect!
-    assert_match "Item was successfully destroyed.", response.body
+    assert_match "Listing removed.", response.body
   end
 
 end

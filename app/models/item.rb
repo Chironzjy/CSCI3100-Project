@@ -1,6 +1,10 @@
 class Item < ApplicationRecord
   include PgSearch::Model
 
+  geocoded_by :location
+
+  has_many_attached :photos, dependent: :destroy
+
   belongs_to :user
 
   STATUSES   = %w[available reserved inactive sold].freeze
@@ -15,6 +19,7 @@ class Item < ApplicationRecord
   validates :title,       presence: true, length: { maximum: 100 }
   validates :description, presence: true
   validates :price,       presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :stock_quantity, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :status,      inclusion: { in: STATUSES }
   validates :category,    presence: true, inclusion: { in: CATEGORIES }
   validates :latitude,    numericality: true, allow_nil: true
@@ -23,8 +28,13 @@ class Item < ApplicationRecord
   validates :visibility_college, presence: true, if: :college_only_visibility?
   validate :meetup_location_selected
 
+  before_validation :geocode_location_if_needed
+  before_validation :apply_stock_driven_status
+  before_save :capture_reserved_timestamp
+
   scope :available, -> { where(status: 'available') }
   scope :recent,    -> { order(created_at: :desc) }
+  scope :reserved_for_auto_completion, -> { where(status: 'reserved').where("reserved_at <= ?", 48.hours.ago) }
 
   pg_search_scope :smart_search,
                   against: [:title, :description, :location],
@@ -52,13 +62,55 @@ class Item < ApplicationRecord
   def meetup_location_selected
     if location.blank?
       errors.add(:location, "can't be blank")
-    elsif latitude.blank? || longitude.blank?
-      errors.add(:location, "must be selected from Google Maps suggestions")
+    elsif coordinates_required? && (latitude.blank? || longitude.blank?)
+      errors.add(:location, "could not be geocoded, please provide a more specific location")
     end
   end
 
   def status_color
     { 'available' => 'success', 'reserved' => 'warning',
       'inactive'  => 'secondary', 'sold' => 'danger' }.fetch(status, 'secondary')
+  end
+
+  def finalize_reservation!
+    new_stock = [stock_quantity.to_i - 1, 0].max
+    self.stock_quantity = new_stock
+    self.status = new_stock.zero? ? 'sold' : 'available'
+    self.reserved_at = nil
+    save!
+  end
+
+  def self.auto_complete_reserved!
+    reserved_for_auto_completion.find_each(&:finalize_reservation!)
+  end
+
+  private
+
+  def geocode_location_if_needed
+    return if location.blank?
+    return if latitude.present? && longitude.present?
+
+    geocode
+  end
+
+  def apply_stock_driven_status
+    return if stock_quantity.nil?
+
+    if stock_quantity.to_i <= 0
+      self.status = 'sold'
+      self.reserved_at = nil
+    elsif status == 'sold'
+      self.status = 'available'
+    end
+  end
+
+  def capture_reserved_timestamp
+    return unless will_save_change_to_status?
+
+    self.reserved_at = status == 'reserved' ? Time.current : nil
+  end
+
+  def coordinates_required?
+    !(Rails.env.development? && ENV['GOOGLE_MAPS_API_KEY'].blank?)
   end
 end

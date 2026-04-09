@@ -30,6 +30,38 @@
           <h2 class="h4 mb-1"><%= @item.title %></h2>
           <h3 class="text-success mb-3 fw-bold">HK$<%= number_with_delimiter(@item.price.to_i) %></h3>
 
+          <% if @item.photos.attached? %>
+            <div class="row g-2 mb-3">
+              <div class="col-12">
+                <%= image_tag url_for(@item.photos.first), class: "w-100 rounded-4 border", style: "max-height: 420px; object-fit: cover;" %>
+              </div>
+              <% @item.photos.drop(1).each do |photo| %>
+                <div class="col-4 col-md-3">
+                  <%= image_tag url_for(photo), class: "w-100 rounded-4 border", style: "height: 96px; object-fit: cover;" %>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="rounded-4 border mb-3 d-flex align-items-center justify-content-center text-site-muted" style="height: 240px; background: rgba(15, 76, 129, 0.05);">
+              <div class="text-center">
+                <i class="bi bi-image fs-1 d-block mb-2"></i>
+                <span>No photos uploaded yet</span>
+              </div>
+            </div>
+          <% end %>
+
+          <p class="small text-muted mb-2">
+            <i class="bi bi-box-seam me-1"></i>
+            Stock: <strong><%= @item.stock_quantity %></strong>
+          </p>
+
+          <% if @item.status == 'reserved' && @item.reserved_at.present? %>
+            <p class="small text-muted mb-2">
+              <i class="bi bi-hourglass-split me-1"></i>
+              Auto-completes after <%= (@item.reserved_at + 48.hours).strftime("%b %d, %Y %H:%M") %>
+            </p>
+          <% end %>
+
           <hr class="my-3">
 
           <h6 class="fw-semibold mb-2">Description</h6>

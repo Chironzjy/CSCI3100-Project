@@ -1,58 +1,339 @@
-/*
- * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
- */
-
-/* Item card hover animation */
-.item-card {
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-  cursor: pointer;
+:root {
+  --site-bg: #f3f6fb;
+  --site-surface: rgba(255, 255, 255, 0.84);
+  --site-surface-solid: #ffffff;
+  --site-border: rgba(19, 31, 44, 0.08);
+  --site-shadow: 0 18px 50px rgba(15, 23, 42, 0.10);
+  --site-shadow-soft: 0 10px 28px rgba(15, 23, 42, 0.08);
+  --site-text: #132238;
+  --site-muted: #5d6b7b;
+  --site-primary: #0f4c81;
+  --site-primary-strong: #083862;
+  --site-accent: #f59f00;
 }
 
-.item-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+html {
+  background:
+    radial-gradient(circle at top left, rgba(15, 76, 129, 0.08), transparent 30%),
+    radial-gradient(circle at top right, rgba(245, 159, 0, 0.08), transparent 25%),
+    var(--site-bg);
 }
 
-/* Ensure footer stays at bottom on short pages */
 body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  color: var(--site-text);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.95) 20%),
+    var(--site-bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 main {
   flex: 1;
 }
 
+.site-shell {
+  position: relative;
+}
+
+.site-shell::before,
+.site-shell::after {
+  content: "";
+  position: fixed;
+  width: 22rem;
+  height: 22rem;
+  border-radius: 999px;
+  filter: blur(30px);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.site-shell::before {
+  top: -6rem;
+  right: -5rem;
+  background: rgba(15, 76, 129, 0.14);
+}
+
+.site-shell::after {
+  bottom: -7rem;
+  left: -6rem;
+  background: rgba(245, 159, 0, 0.10);
+}
+
+.site-navbar {
+  backdrop-filter: blur(18px);
+  background: rgba(9, 50, 88, 0.88) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand-mark {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ffffff, rgba(255, 255, 255, 0.65));
+  color: var(--site-primary);
+}
+
+.brand-copy {
+  line-height: 1.05;
+}
+
+.brand-copy small {
+  color: rgba(255, 255, 255, 0.65);
+  display: block;
+}
+
+.site-card,
+.auth-card,
+.panel-card,
+.map-card,
+.item-card,
+.conversation-card,
+.hero-card {
+  background: var(--site-surface);
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--site-border);
+  box-shadow: var(--site-shadow-soft);
+  border-radius: 1.35rem;
+}
+
+.hero-card {
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.18), transparent 55%);
+  pointer-events: none;
+}
+
+.hero-gradient {
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 28%),
+    linear-gradient(135deg, #0f4c81 0%, #144c76 40%, #1b3d5c 100%);
+}
+
+.hero-kicker {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.hero-title {
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(15, 76, 129, 0.08);
+  color: var(--site-primary-strong);
+  font-weight: 700;
+  font-size: 0.84rem;
+}
+
+.soft-pill {
+  border-radius: 999px;
+  border: 1px solid rgba(15, 76, 129, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--site-primary-strong);
+}
+
+.text-site-muted {
+  color: var(--site-muted) !important;
+}
+
+.btn {
+  border-radius: 0.9rem;
+}
+
+.btn-primary,
+.btn-light,
+.btn-outline-primary {
+  box-shadow: 0 12px 24px rgba(15, 76, 129, 0.10);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0f4c81, #1167a8);
+  border-color: #0f4c81;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background: linear-gradient(135deg, #0d3f6b, #0f5d96);
+  border-color: #0d3f6b;
+}
+
+.btn-outline-primary {
+  border-color: rgba(15, 76, 129, 0.25);
+  color: var(--site-primary);
+}
+
+.btn-outline-primary:hover {
+  background: var(--site-primary);
+  color: #fff;
+}
+
+.form-control,
+.form-select,
+.input-group-text {
+  border-radius: 0.95rem;
+  border-color: rgba(19, 31, 44, 0.12);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: rgba(15, 76, 129, 0.42);
+  box-shadow: 0 0 0 0.25rem rgba(15, 76, 129, 0.12);
+}
+
+.card-title,
+.h1, .h2, .h3, .h4, .display-5 {
+  letter-spacing: -0.03em;
+}
+
+.item-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.item-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--site-shadow) !important;
+  border-color: rgba(15, 76, 129, 0.14);
+}
+
+.item-card .card-body {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.94));
+}
+
+.item-card .badge {
+  border-radius: 999px;
+}
+
+.hero-stat {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border-radius: 1.15rem;
+}
+
+.auth-shell {
+  min-height: calc(100vh - 190px);
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem 3rem;
+}
+
+.auth-grid {
+  width: min(1080px, 100%);
+}
+
+.auth-aside {
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.2), transparent 38%),
+    linear-gradient(145deg, #123d63, #0f4c81 60%, #1e6ea8);
+  color: #fff;
+  border-radius: 1.6rem;
+  box-shadow: var(--site-shadow);
+  overflow: hidden;
+  position: relative;
+}
+
+.auth-aside::after {
+  content: "";
+  position: absolute;
+  width: 16rem;
+  height: 16rem;
+  right: -5rem;
+  bottom: -5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.auth-aside .badge,
+.auth-aside .soft-pill {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.auth-card {
+  border-radius: 1.6rem;
+}
+
+.auth-card .form-control,
+.auth-card .form-select {
+  background: rgba(248, 250, 252, 0.94);
+}
+
+.page-shell {
+  padding: 2rem 0 3rem;
+}
+
+.page-hero {
+  border-radius: 1.6rem;
+  overflow: hidden;
+}
+
+.hero-side-note {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1rem;
+}
+
+.search-surface {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 1.2rem;
+}
+
+.search-surface .form-control,
+.search-surface .form-select {
+  border: 0;
+}
+
+.map-card {
+  overflow: hidden;
+}
+
 .chat-box {
   max-height: 58vh;
   overflow-y: auto;
-  background: #f8fbff;
+  background: linear-gradient(180deg, #f7fbff, #f2f7ff);
 }
 
 .chat-bubble {
   max-width: 75%;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 10px 12px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
 }
 
 .chat-bubble-me {
-  background: #0d6efd;
+  background: linear-gradient(135deg, #0f4c81, #1773bb);
   color: #fff;
 }
 
 .chat-bubble-other {
   background: #fff;
-  color: #212529;
-  border: 1px solid #e9ecef;
+  color: #132238;
+  border: 1px solid rgba(15, 76, 129, 0.10);
 }
 
 .chat-time {
@@ -60,5 +341,33 @@ main {
   opacity: 0.75;
   margin-top: 4px;
   text-align: right;
+}
+
+.footer-shell {
+  background: linear-gradient(180deg, rgba(11, 19, 30, 0.98), rgba(11, 19, 30, 1));
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.footer-shell .text-muted {
+  color: rgba(255, 255, 255, 0.58) !important;
+}
+
+@media (max-width: 991.98px) {
+  .auth-aside {
+    min-height: 220px;
+  }
+
+  .hero-title {
+    font-size: calc(2.2rem + 2vw);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 

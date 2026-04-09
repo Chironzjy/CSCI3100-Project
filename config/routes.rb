@@ -2,6 +2,10 @@ Rails.application.routes.draw do
   devise_for :users
 
   resources :items do
+    collection do
+      get :map
+    end
+
     member do
       patch :update_status
     end

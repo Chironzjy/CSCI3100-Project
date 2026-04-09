@@ -1,68 +1,114 @@
-<h2>Sign up</h2>
+<div class="auth-shell">
+  <div class="auth-grid row g-0 align-items-stretch">
+    <div class="col-lg-5 p-0">
+      <div class="auth-aside h-100 p-4 p-lg-5 d-flex flex-column justify-content-between">
+        <div>
+          <div class="section-label mb-3"><i class="bi bi-person-plus"></i>Create account</div>
+          <h1 class="display-6 fw-bold mb-3">Join CUHK Mart and start trading within your community.</h1>
+          <p class="text-white-50 mb-4">Use your CUHK location to find nearby sellers, protect visibility by college, and manage listings more easily.</p>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="soft-pill px-3 py-2">Unique username</span>
+            <span class="soft-pill px-3 py-2">College-aware</span>
+            <span class="soft-pill px-3 py-2">Map support</span>
+          </div>
+        </div>
+        <div class="mt-4 hero-side-note p-3">
+          <div class="small text-white-50 mb-1">Already have an account?</div>
+          <div class="fw-semibold">Sign in and continue where you left off.</div>
+        </div>
+      </div>
+    </div>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+    <div class="col-lg-7 p-3 p-lg-4">
+      <div class="auth-card p-4 p-lg-5 h-100">
+        <div class="mb-4">
+          <div class="section-label mb-2"><i class="bi bi-mortarboard"></i>Student onboarding</div>
+          <h2 class="h1 mb-2">Sign up</h2>
+          <p class="text-site-muted mb-0">Create your profile with a username, college, and meetup location.</p>
+        </div>
 
-  <div class="field">
-    <%= f.label :user_name %><br />
-    <%= f.text_field :user_name, autofocus: true, required: true %>
+        <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+          <%= render "devise/shared/error_messages", resource: resource %>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <%= f.label :user_name, class: "form-label fw-semibold" %>
+              <%= f.text_field :user_name, autofocus: true, required: true, class: "form-control form-control-lg" %>
+            </div>
+
+            <div class="col-md-6">
+              <%= f.label :college, class: "form-label fw-semibold" %>
+              <%= f.select :college,
+                  options_for_select([["Select your college", ""]] + User::COLLEGES.map { |c| [c, c] }, resource.college),
+                  {},
+                  required: true,
+                  class: "form-select form-select-lg" %>
+            </div>
+
+            <div class="col-12">
+              <%= f.label :location, class: "form-label fw-semibold" %>
+              <%= f.text_field :location, id: "user_location", autocomplete: "off", required: true, class: "form-control form-control-lg" %>
+              <div class="form-text text-site-muted">Enter a CUHK-friendly meetup location. If available, Google Maps will autocomplete it.</div>
+            </div>
+
+            <%= f.hidden_field :latitude, id: "user_latitude" %>
+            <%= f.hidden_field :longitude, id: "user_longitude" %>
+
+            <div class="col-12">
+              <%= f.label :email, class: "form-label fw-semibold" %>
+              <%= f.email_field :email, autocomplete: "email", class: "form-control form-control-lg" %>
+            </div>
+
+            <div class="col-md-6">
+              <%= f.label :password, class: "form-label fw-semibold" %>
+              <%= f.password_field :password, autocomplete: "new-password", class: "form-control form-control-lg" %>
+              <% if @minimum_password_length %>
+                <div class="form-text text-site-muted"><%= @minimum_password_length %> characters minimum</div>
+              <% end %>
+            </div>
+
+            <div class="col-md-6">
+              <%= f.label :password_confirmation, class: "form-label fw-semibold" %>
+              <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control form-control-lg" %>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2 mt-4">
+            <%= f.submit "Sign up", class: "btn btn-primary btn-lg" %>
+          </div>
+        <% end %>
+
+        <div class="mt-4">
+          <%= render "devise/shared/links" %>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
 
-  <div class="field">
-    <%= f.label :location %><br />
-    <%= f.text_field :location, id: "user_location", autocomplete: "off", required: true %>
-  </div>
+<% if ENV['GOOGLE_MAPS_API_KEY'].present? %>
+  <script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&libraries=places&callback=initAutocomplete" async defer></script>
+  <script>
+    function initAutocomplete() {
+      var input = document.getElementById("user_location");
+      if (!input || !window.google || !google.maps || !google.maps.places) {
+        return;
+      }
 
-  <div class="field">
-    <%= f.label :college %><br />
-    <%= f.select :college,
-        options_for_select([["Select your college", ""]] + User::COLLEGES.map { |c| [c, c] }, resource.college),
-        {},
-        required: true %>
-  </div>
+      var autocomplete = new google.maps.places.Autocomplete(input, {
+        types: ["geocode"],
+        componentRestrictions: { country: "hk" }
+      });
 
-  <%= f.hidden_field :latitude, id: "user_latitude" %>
-  <%= f.hidden_field :longitude, id: "user_longitude" %>
-
-  <div class="field">
-    <p><%= f.label :email %></p>
-    <p><%= f.email_field :email, autocomplete: "email" %></p>
-  </div>
-
-  <div class="field">
-    <p><%= f.label :password %></p>
-    <% if @minimum_password_length %>
-      <p><em>(<%= @minimum_password_length %> characters minimum)</em></p>
-    <% end %>
-    <p><%= f.password_field :password, autocomplete: "new-password" %></p>
-  </div>
-
-  <div class="field">
-    <p><%= f.label :password_confirmation %></p>
-    <p><%= f.password_field :password_confirmation, autocomplete: "new-password" %></p>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Sign up" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
-
-<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&libraries=places&callback=initAutocomplete" async defer></script>
-<script>
-function initAutocomplete(){
-    var input = document.getElementById("user_location");
-    if(input){
-        var autocomplete = new google.maps.places.Autocomplete(input, {
-            types: ['geocode'],
-            componentRestrictions: {country: "hk"}
-        });
-        autocomplete.addListener('place_changed', function(){
-            var place = autocomplete.getPlace();
-            document.getElementById("user_latitude").value = place.geometry.location.lat();
-            document.getElementById("user_longitude").value = place.geometry.location.lng();
-        });
+      autocomplete.addListener("place_changed", function() {
+        var place = autocomplete.getPlace();
+        if (place && place.geometry && place.geometry.location) {
+          document.getElementById("user_latitude").value = place.geometry.location.lat();
+          document.getElementById("user_longitude").value = place.geometry.location.lng();
+        }
+      });
     }
-}
-</script>
+  </script>
+<% else %>
+  <p class="text-muted small mt-2">Google Maps API key is not configured in this environment. You can still type your location manually.</p>
+<% end %>

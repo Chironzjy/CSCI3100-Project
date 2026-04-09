@@ -1,72 +1,135 @@
 <% content_for :title, "CUHK Mart – Campus Second-hand Marketplace" %>
 
-<!-- Hero -->
-<div class="bg-primary text-white py-5">
-  <div class="container text-center">
-    <i class="bi bi-shop-window" style="font-size: 3rem;"></i>
-    <h1 class="display-5 fw-bold mt-2 mb-2">CUHK Mart</h1>
-    <p class="lead mb-4 opacity-75">Buy and sell second-hand items within the CUHK community.</p>
-    <%= form_with url: items_path, method: :get,
-          class: "d-flex justify-content-center gap-2 flex-wrap" do |f| %>
-      <div class="input-group" style="max-width: 420px;">
-        <%= f.text_field :search, placeholder: "Search for items...",
-            class: "form-control form-control-lg" %>
-        <%= f.submit "Search", class: "btn btn-light btn-lg px-4" %>
-      </div>
-    <% end %>
-  </div>
-</div>
-
-<!-- Category shortcut pills -->
-<div class="bg-white border-bottom py-3">
+<div class="page-shell">
   <div class="container">
-    <div class="d-flex gap-2 flex-wrap justify-content-center">
-      <% Item::CATEGORIES.each do |cat| %>
-        <%= link_to cat, items_path(category: cat), class: "btn btn-outline-secondary btn-sm" %>
-      <% end %>
-    </div>
-  </div>
-</div>
+    <div class="hero-card hero-gradient text-white p-4 p-lg-5">
+      <div class="row align-items-center g-4 position-relative" style="z-index: 1;">
+        <div class="col-lg-7">
+          <div class="hero-kicker mb-3">CUHK community marketplace</div>
+          <h1 class="display-4 fw-bold hero-title mb-3">A cleaner way to buy and sell around campus.</h1>
+          <p class="lead mb-4 text-white-50" style="max-width: 42rem;">
+            Find textbooks, furniture, and daily essentials with search, map views, live chat, and automated listing workflows.
+          </p>
 
-<!-- Recent Listings -->
-<div class="container py-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="h4 mb-0">Recent Listings</h2>
-    <%= link_to "View All →", items_path, class: "text-decoration-none" %>
-  </div>
-
-  <% recent_items = Item.includes(:user).available.recent.limit(8) %>
-
-  <% if recent_items.empty? %>
-    <div class="text-center py-4">
-      <p class="text-muted">No items listed yet.</p>
-      <%= link_to "Be the first to post!", new_item_path, class: "btn btn-primary" %>
-    </div>
-  <% else %>
-    <div class="row g-3">
-      <% recent_items.each do |item| %>
-        <div class="col-sm-6 col-md-4 col-lg-3">
-          <%= link_to item_path(item), class: "text-decoration-none text-dark" do %>
-            <div class="card h-100 shadow-sm border-0 item-card">
-              <div class="card-body pb-2">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <span class="badge bg-secondary small"><%= item.category %></span>
-                  <span class="fw-bold text-success">HK$<%= number_with_delimiter(item.price.to_i) %></span>
-                </div>
-                <h6 class="card-title mb-1"><%= truncate(item.title, length: 55) %></h6>
-                <p class="card-text text-muted small"><%= truncate(item.description, length: 70) %></p>
+          <%= form_with url: items_path, method: :get, class: "search-surface p-2 p-md-3 mb-4" do |f| %>
+            <div class="row g-2 align-items-center">
+              <div class="col-md-9">
+                <%= f.text_field :search, placeholder: "Search for items, brands, or locations...", class: "form-control form-control-lg" %>
               </div>
-              <div class="card-footer bg-transparent border-top-0 pt-0 pb-2">
-                <small class="text-muted">
-                  <i class="bi bi-person me-1"></i><%= item.user.user_name %>
-                  &middot; <i class="bi bi-clock me-1"></i><%= time_ago_in_words(item.created_at) %> ago
-                </small>
+              <div class="col-md-3 d-grid">
+                <%= f.submit "Search", class: "btn btn-light btn-lg fw-semibold" %>
               </div>
             </div>
           <% end %>
+
+          <div class="d-flex flex-wrap gap-2">
+            <%= link_to items_path, class: "btn btn-outline-light fw-semibold" do %>
+              <i class="bi bi-grid me-1"></i>Browse all
+            <% end %>
+            <%= link_to new_item_path, class: "btn btn-warning fw-semibold" do %>
+              <i class="bi bi-plus-circle me-1"></i>Post an item
+            <% end %>
+          </div>
         </div>
+
+        <div class="col-lg-5">
+          <div class="hero-side-note p-4 mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <div class="small text-uppercase text-white-50 mb-1">Active community</div>
+                <div class="h3 fw-bold mb-0"><%= Item.available.count %></div>
+              </div>
+              <span class="badge rounded-pill text-bg-light text-primary">Live now</span>
+            </div>
+            <div class="row g-3 text-center">
+              <div class="col-4 hero-stat p-3">
+                <div class="fw-bold fs-4"><%= Item::CATEGORIES.size %></div>
+                <div class="small text-white-50">Categories</div>
+              </div>
+              <div class="col-4 hero-stat p-3">
+                <div class="fw-bold fs-4"><%= Conversation.count %></div>
+                <div class="small text-white-50">Chats</div>
+              </div>
+              <div class="col-4 hero-stat p-3">
+                <div class="fw-bold fs-4"><%= User.count %></div>
+                <div class="small text-white-50">Users</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-side-note p-4">
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <span class="brand-mark flex-shrink-0"><i class="bi bi-geo-alt"></i></span>
+              <div>
+                <div class="fw-semibold">Nearby sellers</div>
+                <div class="small text-white-50">Use map view to find listings around you.</div>
+              </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <span class="soft-pill px-3 py-2">Textbooks</span>
+              <span class="soft-pill px-3 py-2">Furniture</span>
+              <span class="soft-pill px-3 py-2">Electronics</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 justify-content-center mt-4 mb-3">
+      <% Item::CATEGORIES.each do |cat| %>
+        <%= link_to cat, items_path(category: cat), class: "btn soft-pill px-3 py-2" %>
       <% end %>
     </div>
-  <% end %>
+
+    <div class="d-flex justify-content-between align-items-end mb-3 mt-5">
+      <div>
+        <div class="section-label mb-2"><i class="bi bi-stars"></i>Featured now</div>
+        <h2 class="h3 mb-0">Recent Listings</h2>
+      </div>
+      <%= link_to "View all", items_path, class: "text-decoration-none fw-semibold" %>
+    </div>
+
+    <% recent_items = Item.with_attached_photos.includes(:user).available.recent.limit(8) %>
+
+    <% if recent_items.empty? %>
+      <div class="site-card p-5 text-center">
+        <i class="bi bi-bag-x display-5 text-site-muted"></i>
+        <p class="text-site-muted mt-3 mb-3">No items listed yet.</p>
+        <%= link_to "Be the first to post", new_item_path, class: "btn btn-primary px-4" %>
+      </div>
+    <% else %>
+      <div class="row g-3">
+        <% recent_items.each do |item| %>
+          <div class="col-sm-6 col-md-4 col-lg-3">
+            <%= link_to item_path(item), class: "text-decoration-none text-dark" do %>
+              <div class="card h-100 item-card">
+                <% if item.photos.attached? %>
+                  <%= image_tag url_for(item.photos.first), class: "card-img-top", style: "height: 180px; object-fit: cover;" %>
+                <% else %>
+                  <div class="card-img-top d-flex align-items-center justify-content-center text-white" style="height: 180px; background: linear-gradient(135deg, #0f4c81, #1e6ea8);">
+                    <i class="bi bi-image fs-1 opacity-75"></i>
+                  </div>
+                <% end %>
+                <div class="card-body pb-2">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-secondary small"><%= item.category %></span>
+                    <span class="fw-bold text-success">HK$<%= number_with_delimiter(item.price.to_i) %></span>
+                  </div>
+                  <h6 class="card-title mb-1"><%= truncate(item.title, length: 55) %></h6>
+                  <p class="card-text text-site-muted small mb-0"><%= truncate(item.description, length: 72) %></p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0 pt-0 pb-3">
+                  <small class="text-site-muted">
+                    <i class="bi bi-person me-1"></i><%= item.user.user_name %>
+                    &middot; <i class="bi bi-clock me-1"></i><%= time_ago_in_words(item.created_at) %> ago
+                  </small>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 </div>
 

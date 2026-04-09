@@ -5,7 +5,7 @@ class ItemsController < ApplicationController
   before_action :authorize_owner!, only: [:edit, :update, :destroy, :update_status]
 
   def index
-    @items = Item.includes(:user).available.visible_to(current_user).recent
+    @items = Item.with_attached_photos.includes(:user).available.visible_to(current_user).recent
 
     if params[:search].present?
       @items = @items.smart_search(params[:search])
@@ -16,6 +16,20 @@ class ItemsController < ApplicationController
   end
 
   def show
+  end
+
+  def map
+    @radius = params[:radius].to_i
+    @radius = 5 if @radius <= 0
+    @radius = 50 if @radius > 50
+
+    base_scope = Item.includes(:user).available.visible_to(current_user).where.not(latitude: nil, longitude: nil)
+
+    @items = if current_user.latitude.present? && current_user.longitude.present?
+               base_scope.near([current_user.latitude, current_user.longitude], @radius, units: :km)
+             else
+               base_scope.recent.limit(100)
+             end
   end
 
   def new
@@ -84,13 +98,15 @@ class ItemsController < ApplicationController
       :title,
       :description,
       :price,
+      :stock_quantity,
       :category,
       :college,
       :location,
       :latitude,
       :longitude,
       :visibility_scope,
-      :visibility_college
+      :visibility_college,
+      photos: []
     )
     if permitted[:visibility_scope] == "college_only" && permitted[:visibility_college].blank?
       permitted[:visibility_college] = current_user.college

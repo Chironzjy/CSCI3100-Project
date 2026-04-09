@@ -1,0 +1,116 @@
+<% content_for :title, "Nearby Sellers – CUHK Mart" %>
+
+<div class="bg-primary text-white py-4">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div>
+      <h1 class="h4 mb-1"><i class="bi bi-geo-alt me-2"></i>Nearby Sellers</h1>
+      <p class="mb-0 small text-white-50">Find listings around your location</p>
+    </div>
+    <%= form_with url: map_items_path, method: :get, class: "d-flex gap-2 align-items-center" do |f| %>
+      <%= f.label :radius, "Radius (km)", class: "small mb-0" %>
+      <%= f.number_field :radius, value: @radius, min: 1, max: 50, class: "form-control form-control-sm", style: "width: 90px;" %>
+      <%= f.submit "Update", class: "btn btn-light btn-sm" %>
+      <%= link_to "Back to List", items_path, class: "btn btn-outline-light btn-sm" %>
+    <% end %>
+  </div>
+</div>
+
+<div class="container py-4">
+  <% if ENV["GOOGLE_MAPS_API_KEY"].blank? %>
+    <div class="alert alert-secondary">Google Maps API key is missing. List view is still available.</div>
+  <% end %>
+
+  <% if @items.empty? %>
+    <div class="alert alert-info mb-0">No geocoded listings found in this range yet.</div>
+  <% else %>
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <div id="nearby-map" class="rounded border" style="height: 520px;"></div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <h6 class="fw-semibold mb-3">Results (<%= @items.size %>)</h6>
+            <div class="d-flex flex-column gap-2" style="max-height: 450px; overflow: auto;">
+              <% @items.each do |item| %>
+                <%= link_to item_path(item), class: "text-decoration-none" do %>
+                  <div class="border rounded p-2">
+                    <div class="fw-semibold text-dark"><%= item.title %></div>
+                    <div class="small text-muted"><%= item.location.presence || "No location text" %></div>
+                    <div class="small text-success">HK$<%= number_with_delimiter(item.price.to_i) %></div>
+                    <% if item.respond_to?(:distance) && item.distance.present? %>
+                      <div class="small text-muted"><%= item.distance.round(2) %> km away</div>
+                    <% end %>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% content_for :head do %>
+  <% if ENV["GOOGLE_MAPS_API_KEY"].present? && @items.any? %>
+    <script>
+      function initNearbySellersMap() {
+        var mapElement = document.getElementById("nearby-map");
+        if (!mapElement || !window.google || !google.maps) {
+          return;
+        }
+
+        var markers = <%= raw @items.map { |item|
+          {
+            id: item.id,
+            title: item.title,
+            price: item.price.to_i,
+            lat: item.latitude,
+            lng: item.longitude
+          }
+        }.to_json %>;
+
+        if (!markers.length) {
+          return;
+        }
+
+        var center = { lat: markers[0].lat, lng: markers[0].lng };
+        var map = new google.maps.Map(mapElement, {
+          zoom: 13,
+          center: center,
+          mapTypeControl: false,
+          streetViewControl: false
+        });
+
+        var bounds = new google.maps.LatLngBounds();
+
+        markers.forEach(function(markerData) {
+          var marker = new google.maps.Marker({
+            position: { lat: markerData.lat, lng: markerData.lng },
+            map: map,
+            title: markerData.title
+          });
+
+          var infoWindow = new google.maps.InfoWindow({
+            content: "<strong>" + markerData.title + "</strong><br/>HK$" + markerData.price
+          });
+
+          marker.addListener("click", function() {
+            infoWindow.open(map, marker);
+          });
+
+          bounds.extend(marker.getPosition());
+        });
+
+        map.fitBounds(bounds);
+      }
+
+      if (!window.nearbyMapTurboHandlerAttached) {
+        document.addEventListener("turbo:load", initNearbySellersMap);
+        window.nearbyMapTurboHandlerAttached = true;
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV["GOOGLE_MAPS_API_KEY"] %>&callback=initNearbySellersMap" async defer></script>
+  <% end %>
+<% end %>

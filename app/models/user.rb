@@ -25,14 +25,27 @@ class User < ApplicationRecord
 
   validates :user_name, presence: true, uniqueness: { case_sensitive: false }
   validates :location,  presence: true
-  validates :latitude,  presence: true
-  validates :longitude, presence: true
+  validates :latitude,  presence: true, if: :coordinates_required?
+  validates :longitude, presence: true, if: :coordinates_required?
   validates :college,   inclusion: { in: COLLEGES }, allow_blank: true
 
   geocoded_by :location
-  after_validation :geocode, if: :location_changed?
+  before_validation :geocode_location_if_needed
 
   def conversations
     Conversation.involving(self)
+  end
+
+  private
+
+  def geocode_location_if_needed
+    return if location.blank?
+    return if latitude.present? && longitude.present?
+
+    geocode
+  end
+
+  def coordinates_required?
+    !(Rails.env.development? && ENV['GOOGLE_MAPS_API_KEY'].blank?)
   end
 end

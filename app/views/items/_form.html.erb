@@ -93,12 +93,31 @@
       window.itemMeetupAutocompleteTurboHandlerAttached = true;
     }
   </script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&libraries=places&callback=initItemMeetupAutocomplete" async defer></script>
+<% if ENV['GOOGLE_MAPS_API_KEY'].present? %>
+      <script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&libraries=places&callback=initItemMeetupAutocomplete" async defer></script>
+    <% end %>
 <% end %>
 
 <%= form_with model: @item do |f| %>
   <%= f.hidden_field :latitude, id: "item_latitude" %>
   <%= f.hidden_field :longitude, id: "item_longitude" %>
+
+  <div class="mb-4">
+    <%= f.label :photos, "Item Photos", class: "form-label fw-semibold" %>
+    <%= f.file_field :photos,
+        multiple: true,
+        direct_upload: true,
+        accept: "image/*",
+        class: "form-control" %>
+    <div class="form-text text-site-muted">Upload one or more photos to make your listing easier to trust and browse.</div>
+    <% if @item.photos.attached? %>
+      <div class="d-flex flex-wrap gap-2 mt-3">
+        <% @item.photos.each do |photo| %>
+          <%= image_tag url_for(photo), class: "rounded-4 border", style: "width: 92px; height: 92px; object-fit: cover;" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 
   <div class="mb-3">
     <%= f.label :title, class: "form-label fw-semibold" %>
@@ -124,6 +143,14 @@
     </div>
 
     <div class="col-md-4">
+      <%= f.label :stock_quantity, "Stock", class: "form-label fw-semibold" %>
+      <%= f.number_field :stock_quantity,
+          class: "form-control #{'is-invalid' if @item.errors[:stock_quantity].any?}",
+          min: 0, step: 1, placeholder: "1" %>
+      <div class="form-text text-muted">Set 0 to mark as sold out; replenishing stock auto-relist the item.</div>
+    </div>
+
+    <div class="col-md-4">
       <%= f.label :category, class: "form-label fw-semibold" %>
       <%= f.select :category,
           options_for_select([['Select a category', '']] + Item::CATEGORIES.map { |c| [c, c] }, @item.category),
@@ -138,6 +165,9 @@
           autocomplete: "off",
           required: true,
           placeholder: "Search a meetup location and select it" %>
+      <% unless ENV['GOOGLE_MAPS_API_KEY'].present? %>
+        <div class="form-text text-muted">Google Maps API key is not configured. Enter location manually and we will geocode it on save.</div>
+      <% end %>
       <% @item.errors[:location].each do |message| %>
         <div class="invalid-feedback d-block"><%= message %></div>
       <% end %>

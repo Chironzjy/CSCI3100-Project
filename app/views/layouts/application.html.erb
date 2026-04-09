@@ -23,12 +23,16 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-light">
+  <body class="site-shell">
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark site-navbar sticky-top shadow-sm">
       <div class="container">
-        <%= link_to root_path, class: "navbar-brand fw-bold fs-5" do %>
-          <i class="bi bi-shop-window me-2"></i>CUHK Mart
+        <%= link_to root_path, class: "navbar-brand fw-bold d-flex align-items-center gap-2" do %>
+          <span class="brand-mark"><i class="bi bi-shop-window"></i></span>
+          <span class="brand-copy">
+            CUHK Mart
+            <small class="fw-normal">Campus second-hand marketplace</small>
+          </span>
         <% end %>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -86,8 +90,8 @@
                   <i class="bi bi-box-arrow-in-right me-1"></i>Log In
                 <% end %>
               </li>
-              <li class="nav-item">
-                <%= link_to "Sign Up", new_user_registration_path, class: "btn btn-outline-light ms-2" %>
+              <li class="nav-item ms-lg-2">
+                <%= link_to "Sign Up", new_user_registration_path, class: "btn btn-light fw-semibold px-3" %>
               </li>
             <% end %>
           </ul>
@@ -97,14 +101,14 @@
 
     <!-- Flash messages -->
     <% if notice %>
-      <div class="alert alert-success alert-dismissible fade show mb-0 rounded-0" role="alert">
-        <div class="container"><i class="bi bi-check-circle me-2"></i><%= notice %></div>
+      <div class="alert alert-success alert-dismissible fade show mb-0 rounded-0 border-0" role="alert">
+        <div class="container py-1"><i class="bi bi-check-circle me-2"></i><%= notice %></div>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     <% end %>
     <% if alert %>
-      <div class="alert alert-danger alert-dismissible fade show mb-0 rounded-0" role="alert">
-        <div class="container"><i class="bi bi-exclamation-triangle me-2"></i><%= alert %></div>
+      <div class="alert alert-danger alert-dismissible fade show mb-0 rounded-0 border-0" role="alert">
+        <div class="container py-1"><i class="bi bi-exclamation-triangle me-2"></i><%= alert %></div>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     <% end %>
@@ -113,9 +117,10 @@
       <%= yield %>
     </main>
 
-    <footer class="bg-dark text-light py-4 mt-5">
+    <footer class="footer-shell text-light py-4 mt-5">
       <div class="container text-center">
-        <p class="mb-0 small text-muted">&copy; 2026 CUHK Mart &middot; CSCI3100 Team Project</p>
+        <p class="mb-1 fw-semibold">CUHK Mart</p>
+        <p class="mb-0 small text-muted">&copy; 2026 CSCI3100 Team Project &middot; Built for CUHK students</p>
       </div>
     </footer>
 

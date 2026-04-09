@@ -1,0 +1,26 @@
+one:
+  user: one
+  title: Used iPad Air
+  description: Good condition, lightly used for one semester.
+  price: 1800
+  status: available
+  category: Electronics
+  college: Shaw College
+  location: CUHK University Station
+  latitude: 22.4133
+  longitude: 114.2104
+  visibility_scope: campus
+
+two:
+  user: two
+  title: Calculus Textbook
+  description: Clean pages with minimal highlights.
+  price: 120
+  status: available
+  category: Books
+  college: Morningside College
+  location: MTR University
+  latitude: 22.4138
+  longitude: 114.2102
+  visibility_scope: college_only
+  visibility_college: Morningside College
