@@ -1,58 +1,135 @@
-<h2>Edit <%= resource_name.to_s.humanize %></h2>
+<div class="auth-shell">
+  <div class="auth-grid row g-0 align-items-stretch">
+    <div class="col-lg-5 p-0">
+      <div class="auth-aside h-100 p-4 p-lg-5 d-flex flex-column justify-content-between">
+        <div>
+          <div class="section-label mb-3"><i class="bi bi-person-gear"></i>Account settings</div>
+          <h1 class="display-6 fw-bold mb-3">Update your profile for smoother campus trading.</h1>
+          <p class="text-white-50 mb-4">Keep your username, college, and location accurate so search, map, and visibility rules work correctly.</p>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="soft-pill px-3 py-2">Profile</span>
+            <span class="soft-pill px-3 py-2">Security</span>
+            <span class="soft-pill px-3 py-2">Location</span>
+          </div>
+        </div>
+        <div class="mt-4 hero-side-note p-3">
+          <div class="small text-white-50 mb-1">Need to return quickly?</div>
+          <div class="fw-semibold">Go back to browsing or your listings anytime.</div>
+        </div>
+      </div>
+    </div>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+    <div class="col-lg-7 p-3 p-lg-4">
+      <div class="auth-card p-4 p-lg-5 h-100">
+        <div class="mb-4">
+          <div class="section-label mb-2"><i class="bi bi-gear"></i>Profile management</div>
+          <h2 class="h1 mb-2">Settings</h2>
+          <p class="text-site-muted mb-0">Update account details and secure your password changes with current password confirmation.</p>
+        </div>
 
-  <div class="field">
-    <p><%= f.label :user_name %></p>
-    <p><%= f.text_field :user_name, autocomplete: "nickname" %></p>
+        <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+          <%= render "devise/shared/error_messages", resource: resource %>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <%= f.label :user_name, class: "form-label fw-semibold" %>
+              <%= f.text_field :user_name, autocomplete: "nickname", class: "form-control form-control-lg" %>
+            </div>
+
+            <div class="col-md-6">
+              <%= f.label :college, class: "form-label fw-semibold" %>
+              <%= f.select :college,
+                  options_for_select([["Select your college", ""]] + User::COLLEGES.map { |c| [c, c] }, resource.college),
+                  {},
+                  class: "form-select form-select-lg" %>
+            </div>
+
+            <div class="col-12">
+              <%= f.label :location, class: "form-label fw-semibold" %>
+              <%= f.text_field :location, id: "user_location", autocomplete: "off", class: "form-control form-control-lg" %>
+              <%= f.hidden_field :latitude, id: "user_latitude" %>
+              <%= f.hidden_field :longitude, id: "user_longitude" %>
+            </div>
+
+            <div class="col-12">
+              <%= f.label :email, class: "form-label fw-semibold" %>
+              <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control form-control-lg" %>
+            </div>
+
+            <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+              <div class="col-12">
+                <div class="alert alert-info mb-0">
+                  Waiting confirmation for: <strong><%= resource.unconfirmed_email %></strong>
+                </div>
+              </div>
+            <% end %>
+
+            <div class="col-md-6">
+              <%= f.label :password, class: "form-label fw-semibold" %>
+              <%= f.password_field :password, autocomplete: "new-password", class: "form-control form-control-lg" %>
+              <div class="form-text text-site-muted">Leave blank to keep your current password.</div>
+              <% if @minimum_password_length %>
+                <div class="form-text text-site-muted"><%= @minimum_password_length %> characters minimum</div>
+              <% end %>
+            </div>
+
+            <div class="col-md-6">
+              <%= f.label :password_confirmation, class: "form-label fw-semibold" %>
+              <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control form-control-lg" %>
+            </div>
+
+            <div class="col-12">
+              <%= f.label :current_password, class: "form-label fw-semibold" %>
+              <%= f.password_field :current_password, autocomplete: "current-password", class: "form-control form-control-lg", required: true %>
+              <div class="form-text text-site-muted">Current password is required to confirm profile updates.</div>
+            </div>
+          </div>
+
+          <div class="d-grid d-md-flex gap-2 mt-4">
+            <%= f.submit "Save changes", class: "btn btn-primary btn-lg px-4" %>
+            <%= link_to "Back to home", root_path, class: "btn btn-outline-secondary btn-lg px-4" %>
+          </div>
+        <% end %>
+
+        <hr class="my-4">
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+          <div>
+            <h5 class="mb-1 text-danger">Danger zone</h5>
+            <p class="text-site-muted small mb-0">This action is irreversible and deletes your account data.</p>
+          </div>
+          <%= button_to "Cancel my account",
+                registration_path(resource_name),
+                method: :delete,
+                data: { turbo_confirm: "Are you sure you want to delete your account?" },
+                class: "btn btn-outline-danger" %>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
 
-  <div class="field">
-    <p><%= f.label :location %></p>
-    <p><%= f.text_field :location, autocomplete: "off" %></p>
-  </div>
+<% if ENV['GOOGLE_MAPS_API_KEY'].present? %>
+  <script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&libraries=places&callback=initAutocomplete" async defer></script>
+  <script>
+    function initAutocomplete() {
+      var input = document.getElementById("user_location");
+      if (!input || !window.google || !google.maps || !google.maps.places) {
+        return;
+      }
 
-  <div class="field">
-    <p><%= f.label :college %></p>
-    <p><%= f.select :college,
-          options_for_select([["Select your college", ""]] + User::COLLEGES.map { |c| [c, c] }, resource.college) %></p>
-  </div>
+      var autocomplete = new google.maps.places.Autocomplete(input, {
+        types: ["geocode"],
+        componentRestrictions: { country: "hk" }
+      });
 
-  <div class="field">
-    <p><%= f.label :email %></p>
-    <p><%= f.email_field :email, autofocus: true, autocomplete: "email" %></p>
-  </div>
-
-  <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-    <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
-  <% end %>
-
-  <div class="field">
-    <p><%= f.label :password %> <i>(leave blank if you don't want to change it)</i></p>
-    <p><%= f.password_field :password, autocomplete: "new-password" %></p>
-    <% if @minimum_password_length %>
-      <p><em><%= @minimum_password_length %> characters minimum</em></p>
-    <% end %>
-  </div>
-
-  <div class="field">
-    <p><%= f.label :password_confirmation %></p>
-    <p><%= f.password_field :password_confirmation, autocomplete: "new-password" %></p>
-  </div>
-
-  <div class="field">
-    <p><%= f.label :current_password %> <i>(we need your current password to confirm your changes)</i></p>
-    <p><%= f.password_field :current_password, autocomplete: "current-password" %></p>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Update" %>
-  </div>
+      autocomplete.addListener("place_changed", function() {
+        var place = autocomplete.getPlace();
+        if (place && place.geometry && place.geometry.location) {
+          document.getElementById("user_latitude").value = place.geometry.location.lat();
+          document.getElementById("user_longitude").value = place.geometry.location.lng();
+        }
+      });
+    }
+  </script>
 <% end %>
-
-<h3>Cancel my account</h3>
-
-<div>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?", turbo_confirm: "Are you sure?" }, method: :delete %></div>
-
-<%= link_to "Back", :back %>
