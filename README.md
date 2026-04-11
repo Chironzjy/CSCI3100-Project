@@ -24,6 +24,8 @@ Run the automated test suite:
 
 ```bash
 bundle exec rails test
+bundle exec rspec
+bundle exec cucumber
 ```
 
 Run targeted automation tests:
@@ -38,6 +40,26 @@ To verify scheduled jobs manually in development:
 bundle exec rails runner "AutoCompleteReservedItemsJob.perform_now"
 bundle exec rails runner "StaleAlertJob.perform_now"
 ```
+
+## Demo Data and Smoke Checklist
+
+After running `bundle exec rails db:seed` in development, the following demo accounts are available:
+
+- `demo_buyer@cuhk.local` / `password123`
+- `demo_seller_a@cuhk.local` / `password123`
+- `demo_seller_b@cuhk.local` / `password123`
+- `demo_seller_c@cuhk.local` / `password123`
+
+Recommended smoke test order:
+
+1. Log in as `demo_buyer@cuhk.local` and verify browse/search/filter results.
+2. Open map view and confirm nearby seller cards/markers render.
+3. Open an item and start chat with seller; confirm conversation updates.
+4. Log in as seller and verify listing lifecycle actions (`available`/`reserved`/`inactive`).
+5. Run automation jobs manually and verify outcomes:
+   - `bundle exec rails runner "AutoCompleteReservedItemsJob.perform_now"`
+   - `bundle exec rails runner "StaleAlertJob.perform_now"`
+6. Confirm system messages appear in related conversations.
 
 ## Implemented Features and Ownership
 
@@ -95,3 +117,14 @@ After running coverage, place the screenshot at `docs/simplecov-report.png` and 
 
 - The project currently uses recurring Active Job scheduling in `config/recurring.yml`.
 - Seed data creates a `system@local` user for automation messages.
+- CI should pass all security/lint/test jobs before final submission.
+
+## Quick Verification for TAs
+
+Use this short path to verify advanced features quickly:
+
+1. Sign in with `demo_buyer@cuhk.local`.
+2. Search `iPad` in browse page and open item details.
+3. Start chat and send one message.
+4. Trigger `AutoCompleteReservedItemsJob` and refresh conversations.
+5. Trigger `StaleAlertJob` and verify stale reminder/cleanup effects.

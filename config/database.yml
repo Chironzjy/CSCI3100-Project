@@ -61,6 +61,9 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
+  host: 127.0.0.1
   database: csci3100_project_test
 
 # As with config/credentials.yml, you never want to store sensitive information,
