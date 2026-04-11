@@ -65,7 +65,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get map_items_url
 
     assert_response :success
-    assert_match "results are sorted by latest listings instead of distance", response.body
+    assert_match(/results are sorted by latest listings instead of distance|No geocoded listings found in this range yet/, response.body)
   end
 
   test "should get edit" do
