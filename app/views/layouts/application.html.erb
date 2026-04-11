@@ -66,10 +66,14 @@
                 <% end %>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                <button
+                  class="nav-link dropdown-toggle bg-transparent border-0"
+                  type="button"
+                  data-user-menu-toggle
+                  aria-expanded="false">
                   <i class="bi bi-person-circle me-1"></i><%= current_user.user_name %>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" data-user-menu>
                   <li>
                     <%= link_to edit_user_registration_path, class: "dropdown-item" do %>
                       <i class="bi bi-gear me-2"></i>Settings
