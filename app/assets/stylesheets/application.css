@@ -67,6 +67,11 @@ main {
   backdrop-filter: blur(18px);
   background: rgba(9, 50, 88, 0.88) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 2000;
+}
+
+.site-navbar .dropdown-menu {
+  z-index: 2100;
 }
 
 .brand-mark {
