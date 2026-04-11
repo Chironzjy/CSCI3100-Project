@@ -9,7 +9,7 @@
     <%= form_with url: map_items_path, method: :get, class: "d-flex gap-2 align-items-center" do |f| %>
       <%= f.label :radius, "Radius (km)", class: "small mb-0" %>
       <%= f.number_field :radius, value: @radius, min: 1, max: 50, class: "form-control form-control-sm", style: "width: 90px;" %>
-      <%= f.submit "Update", class: "btn btn-light btn-sm" %>
+      <%= f.submit "Update", class: "btn btn-light btn-sm", data: { turbo_submits_with: "Updating..." } %>
       <%= link_to "Back to List", items_path, class: "btn btn-outline-light btn-sm" %>
     <% end %>
   </div>
@@ -19,8 +19,14 @@
   <% if ENV["GOOGLE_MAPS_API_KEY"].blank? %>
     <div class="alert alert-secondary">Google Maps API key is missing. List view is still available.</div>
   <% end %>
+  <% unless @location_available %>
+    <div class="alert alert-info d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <span>Your profile location is missing, so results are sorted by latest listings instead of distance.</span>
+      <%= link_to "Update profile location", edit_user_registration_path, class: "btn btn-sm btn-outline-primary" %>
+    </div>
+  <% end %>
 
-  <% if @items.empty? %>
+  <% if @seller_markers.empty? %>
     <div class="alert alert-info mb-0">No geocoded listings found in this range yet.</div>
   <% else %>
     <div class="row g-3">
@@ -30,16 +36,19 @@
       <div class="col-lg-4">
         <div class="card border-0 shadow-sm">
           <div class="card-body">
-            <h6 class="fw-semibold mb-3">Results (<%= @items.size %>)</h6>
+            <h6 class="fw-semibold mb-3">Nearby Sellers (<%= @seller_markers.size %>)</h6>
             <div class="d-flex flex-column gap-2" style="max-height: 450px; overflow: auto;">
-              <% @items.each do |item| %>
-                <%= link_to item_path(item), class: "text-decoration-none" do %>
+              <% @seller_markers.each do |seller| %>
+                <%= link_to item_path(seller[:sample_item_id]), class: "text-decoration-none" do %>
                   <div class="border rounded p-2">
-                    <div class="fw-semibold text-dark"><%= item.title %></div>
-                    <div class="small text-muted"><%= item.location.presence || "No location text" %></div>
-                    <div class="small text-success">HK$<%= number_with_delimiter(item.price.to_i) %></div>
-                    <% if item.respond_to?(:distance) && item.distance.present? %>
-                      <div class="small text-muted"><%= item.distance.round(2) %> km away</div>
+                    <div class="fw-semibold text-dark"><%= seller[:seller_name] %></div>
+                    <div class="small text-muted"><%= seller[:location].presence || "No location text" %></div>
+                    <div class="small text-success">
+                      <%= seller[:item_count] %> listing(s) &middot; from HK$<%= number_with_delimiter(seller[:sample_price]) %>
+                    </div>
+                    <div class="small text-muted">Sample item: <%= seller[:sample_item_title] %></div>
+                    <% if seller[:distance_km].present? %>
+                      <div class="small text-muted"><%= seller[:distance_km].round(2) %> km away</div>
                     <% end %>
                   </div>
                 <% end %>
@@ -53,7 +62,7 @@
 </div>
 
 <% content_for :head do %>
-  <% if ENV["GOOGLE_MAPS_API_KEY"].present? && @items.any? %>
+  <% if ENV["GOOGLE_MAPS_API_KEY"].present? && @seller_markers.any? %>
     <script>
       function initNearbySellersMap() {
         var mapElement = document.getElementById("nearby-map");
@@ -61,13 +70,14 @@
           return;
         }
 
-        var markers = <%= raw @items.map { |item|
+        var markers = <%= raw @seller_markers.map { |seller|
           {
-            id: item.id,
-            title: item.title,
-            price: item.price.to_i,
-            lat: item.latitude,
-            lng: item.longitude
+            sellerName: seller[:seller_name],
+            itemCount: seller[:item_count],
+            sampleItemTitle: seller[:sample_item_title],
+            samplePrice: seller[:sample_price],
+            lat: seller[:latitude],
+            lng: seller[:longitude]
           }
         }.to_json %>;
 
@@ -93,7 +103,9 @@
           });
 
           var infoWindow = new google.maps.InfoWindow({
-            content: "<strong>" + markerData.title + "</strong><br/>HK$" + markerData.price
+            content: "<strong>" + markerData.sellerName + "</strong><br/>" +
+              markerData.itemCount + " listing(s), from HK$" + markerData.samplePrice + "<br/>" +
+              markerData.sampleItemTitle
           });
 
           marker.addListener("click", function() {

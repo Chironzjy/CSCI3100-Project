@@ -8,7 +8,7 @@ class MessagesController < ApplicationController
     @message.user = current_user
 
     if @message.save
-      redirect_to conversation_path(@conversation)
+      redirect_to conversation_path(@conversation), notice: "Message sent."
     else
       redirect_to conversation_path(@conversation), alert: @message.errors.full_messages.to_sentence
     end

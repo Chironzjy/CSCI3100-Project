@@ -17,7 +17,7 @@
                 <%= f.text_field :search, placeholder: "Search for items, brands, or locations...", class: "form-control form-control-lg" %>
               </div>
               <div class="col-md-3 d-grid">
-                <%= f.submit "Search", class: "btn btn-light btn-lg fw-semibold" %>
+                <%= f.submit "Search", class: "btn btn-light btn-lg fw-semibold", data: { turbo_submits_with: "Searching..." } %>
               </div>
             </div>
           <% end %>

@@ -100,15 +100,12 @@
     </nav>
 
     <!-- Flash messages -->
-    <% if notice %>
-      <div class="alert alert-success alert-dismissible fade show mb-0 rounded-0 border-0" role="alert">
-        <div class="container py-1"><i class="bi bi-check-circle me-2"></i><%= notice %></div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    <% end %>
-    <% if alert %>
-      <div class="alert alert-danger alert-dismissible fade show mb-0 rounded-0 border-0" role="alert">
-        <div class="container py-1"><i class="bi bi-exclamation-triangle me-2"></i><%= alert %></div>
+    <% flash.each do |type, message| %>
+      <% next if message.blank? %>
+      <% alert_class = type.to_s == "alert" ? "danger" : "success" %>
+      <% icon_class = type.to_s == "alert" ? "bi-exclamation-triangle" : "bi-check-circle" %>
+      <div class="alert alert-<%= alert_class %> alert-dismissible fade show mb-0 rounded-0 border-0" role="alert">
+        <div class="container py-1"><i class="bi <%= icon_class %> me-2"></i><%= message %></div>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     <% end %>

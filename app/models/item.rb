@@ -13,7 +13,7 @@ class Item < ApplicationRecord
   COLLEGES   = [
     'Any College', 'Shaw College', 'Morningside College', 'United College',
     'Chung Chi College', 'New Asia College', 'S.H. Ho College',
-    'Wu Yee Sun College', 'Lee Woo Sing College'
+    'Wu Yee Sun College', 'Lee Woo Sing College', 'CW Chu College'
   ].freeze
 
   validates :title,       presence: true, length: { maximum: 100 }
