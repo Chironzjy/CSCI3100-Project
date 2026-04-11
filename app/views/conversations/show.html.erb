@@ -16,6 +16,9 @@
           class="card-body chat-box"
           data-conversation-id="<%= @conversation.id %>"
          data-current-user-id="<%= current_user.id %>">
+      <% if @messages.empty? %>
+        <div class="text-center text-muted small py-4">No messages yet. Start the conversation below.</div>
+      <% end %>
       <% @messages.each do |message| %>
         <% mine = message.user_id == current_user.id %>
         <div class="d-flex mb-2 <%= mine ? 'justify-content-end' : 'justify-content-start' %>">
@@ -31,7 +34,7 @@
     <div class="card-footer bg-white">
       <%= form_with model: [@conversation, Message.new], class: "d-flex gap-2" do |f| %>
         <%= f.text_area :body, class: "form-control", rows: 2, placeholder: "Type a message...", required: true %>
-        <%= f.submit "Send", class: "btn btn-primary" %>
+        <%= f.submit "Send", class: "btn btn-primary", data: { turbo_submits_with: "Sending..." } %>
       <% end %>
     </div>
   </div>

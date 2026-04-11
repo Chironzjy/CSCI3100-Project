@@ -22,6 +22,29 @@ class ItemTest < ActiveSupport::TestCase
     assert_includes item.errors[:user], "must exist"
   end
 
+  test "finalize_reservation! marks item back to available when stock remains" do
+    item = items(:one)
+    item.update!(status: "reserved", reserved_at: 49.hours.ago, stock_quantity: 2)
+
+    item.finalize_reservation!
+    item.reload
+
+    assert_equal "available", item.status
+    assert_equal 1, item.stock_quantity
+    assert_nil item.reserved_at
+  end
+
+  test "finalize_reservation! marks item sold when stock reaches zero" do
+    item = items(:one)
+    item.update!(status: "reserved", reserved_at: 49.hours.ago, stock_quantity: 1)
+
+    item.finalize_reservation!
+    item.reload
+
+    assert_equal "sold", item.status
+    assert_equal 0, item.stock_quantity
+  end
+
   private
 
   def valid_item_attributes

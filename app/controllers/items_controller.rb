@@ -24,12 +24,14 @@ class ItemsController < ApplicationController
     @radius = 50 if @radius > 50
 
     base_scope = Item.includes(:user).available.visible_to(current_user).where.not(latitude: nil, longitude: nil)
+    @location_available = current_user.latitude.present? && current_user.longitude.present?
 
-    @items = if current_user.latitude.present? && current_user.longitude.present?
+    @items = if @location_available
                base_scope.near([current_user.latitude, current_user.longitude], @radius, units: :km)
              else
                base_scope.recent.limit(100)
              end
+    @seller_markers = build_seller_markers(@items)
   end
 
   def new
@@ -112,5 +114,30 @@ class ItemsController < ApplicationController
       permitted[:visibility_college] = current_user.college
     end
     permitted
+  end
+
+  def build_seller_markers(items)
+    items.group_by(&:user_id).map do |_, seller_items|
+      seller = seller_items.first.user
+      sample_item = seller_items.first
+      distance_values = seller_items.map { |item| item.respond_to?(:distance) ? item.distance.to_f : nil }.compact
+
+      latitudes = seller_items.map(&:latitude).compact
+      longitudes = seller_items.map(&:longitude).compact
+      marker_latitude = seller.latitude || latitudes.sum / latitudes.size
+      marker_longitude = seller.longitude || longitudes.sum / longitudes.size
+
+      {
+        seller_name: seller.user_name,
+        latitude: marker_latitude,
+        longitude: marker_longitude,
+        location: seller.location.presence || sample_item.location,
+        item_count: seller_items.size,
+        sample_item_id: sample_item.id,
+        sample_item_title: sample_item.title,
+        sample_price: sample_item.price.to_i,
+        distance_km: distance_values.min
+      }
+    end.sort_by { |marker| marker[:distance_km] || Float::INFINITY }
   end
 end

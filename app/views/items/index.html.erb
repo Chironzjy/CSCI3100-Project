@@ -20,7 +20,10 @@
             {}, class: "form-select" %>
       </div>
       <div class="col-12 col-md-2 d-grid">
-        <%= f.submit "Search", class: "btn btn-light" %>
+        <%= f.submit "Search", class: "btn btn-light", data: { turbo_submits_with: "Searching..." } %>
+      </div>
+      <div class="col-12">
+        <%= link_to "Clear filters", items_path, class: "small text-white-50 text-decoration-none" if params[:search].present? || params[:category].present? || params[:college].present? %>
       </div>
     <% end %>
   </div>

@@ -54,6 +54,20 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_match @item.title, response.body
   end
 
+  test "should get nearby sellers map" do
+    get map_items_url, params: { radius: 8 }
+    assert_response :success
+    assert_match "Nearby Sellers", response.body
+  end
+
+  test "map should show fallback when user has no coordinates" do
+    @user.update!(latitude: nil, longitude: nil)
+    get map_items_url
+
+    assert_response :success
+    assert_match "results are sorted by latest listings instead of distance", response.body
+  end
+
   test "should get edit" do
     get edit_item_url(@item)
     assert_response :success
