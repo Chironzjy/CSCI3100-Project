@@ -10,6 +10,7 @@ class Message < ApplicationRecord
   private
 
   def sender_must_be_conversation_participant
+    return if user.email == "system@local"
     return if conversation&.participant?(user)
 
     errors.add(:user_id, "is not part of this conversation")

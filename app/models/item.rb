@@ -99,8 +99,6 @@ class Item < ApplicationRecord
     if stock_quantity.to_i <= 0
       self.status = 'sold'
       self.reserved_at = nil
-    elsif status == 'sold'
-      self.status = 'available'
     end
   end
 
