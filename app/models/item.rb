@@ -6,6 +6,7 @@ class Item < ApplicationRecord
   has_many_attached :photos, dependent: :destroy
 
   belongs_to :user
+  has_many :conversations, dependent: :destroy, inverse_of: :item
 
   STATUSES   = %w[available reserved inactive sold].freeze
   VISIBILITY_SCOPES = %w[campus college_only].freeze

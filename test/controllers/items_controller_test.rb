@@ -98,4 +98,21 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Listing removed.", response.body
   end
 
+  test "should destroy item with conversations and messages" do
+    @item.update!(status: "sold")
+
+    conversation = Conversation.create!(item: @item, buyer: users(:two), seller: @user)
+    Message.create!(conversation: conversation, user: users(:two), body: "Is pickup still available?")
+
+    assert_difference("Item.count", -1) do
+      assert_difference("Conversation.count", -1) do
+        assert_difference("Message.count", -1) do
+          delete item_url(@item)
+        end
+      end
+    end
+
+    assert_redirected_to items_url
+  end
+
 end

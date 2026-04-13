@@ -42,8 +42,6 @@ class StaleAlertJob < ApplicationJob
   end
 
   def delete_inactive_item(item)
-    # Remove dependent conversations first so item deletion does not violate foreign keys.
-    Conversation.where(item_id: item.id).destroy_all
     item.destroy!
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotDestroyed => error
     Rails.logger.warn("StaleAlertJob could not delete item #{item.id}: #{error.message}")

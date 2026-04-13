@@ -1,5 +1,5 @@
 class Conversation < ApplicationRecord
-  belongs_to :item
+  belongs_to :item, inverse_of: :conversations
   belongs_to :buyer, class_name: "User", inverse_of: :buyer_conversations
   belongs_to :seller, class_name: "User", inverse_of: :seller_conversations
 
