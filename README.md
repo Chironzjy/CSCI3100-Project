@@ -72,12 +72,12 @@ Team members:
 
 | Feature | Description | Primary Developer | Secondary Developer |
 | --- | --- | --- | --- |
-| User Authentication (Devise) | Sign up, login, account settings, profile fields | Team | Team |
-| Item Lifecycle Management | CRUD + status transitions (`available`, `reserved`, `inactive`, `sold`) | Team | Team |
-| Intelligent Search | Fuzzy search via `pg_search` + filters | Team | Team |
-| Location-Based Discovery | Nearby sellers/map view with location fallback | Team | Team |
-| Real-time Messaging | ActionCable buyer-seller chat per listing | Team | Team |
-| Automated Workflows | 48h auto-completion, 15d inactive reminder, 30d inactive cleanup | Team | Team |
+| User Authentication (Devise) | Sign up, login, account settings, profile fields | ZHANG Junyuan | LI Zhengyang |
+| Item Lifecycle Management | CRUD + status transitions (`available`, `reserved`, `inactive`, `sold`) | YE Yangtao | Lau Ho Cheong |
+| Intelligent Search | Fuzzy search via `pg_search` + filters | LI Zhengyang | YE Yangtao |
+| Location-Based Discovery | Nearby sellers/map view with location fallback | ZHANG Junyuan | YE Yangtao, Lau Ho Cheong |
+| Real-time Messaging | ActionCable buyer-seller chat per listing | MA Zizhan | YE Yangtao |
+| Automated Workflows | 48h auto-completion, 15d inactive reminder, 30d inactive cleanup | Lau Ho Cheong | MA Zizhan |
 
 ## Implemented Feature Details
 
@@ -109,9 +109,7 @@ Team members:
 
 ## SimpleCov Report Screenshot
 
-After running coverage, place the screenshot at `docs/simplecov-report.png` and keep the image below.
-
-![SimpleCov Coverage Report](docs/simplecov-report.png)
+![SimpleCov Coverage Report](1.png)
 
 ## Notes
 
